@@ -1,6 +1,7 @@
 # Deployment Instructions Template
-**Template Version:** v1.0.0  
+**Template Version:** v1.2.0-template  
 **For use with:** Project Builder generated instruction files
+**Change Log:** See `COMPANION_ProjectBuilder_Instructions.md` (Section: Change log)
 
 ---
 

@@ -1,6 +1,6 @@
 # CORE — Project Builder (Project Instructions)
-**Version:** v1.1.0-core  
-**Effective date:** 2026-01-29  
+**Version:** v1.2.0-core  
+**Effective date:** 2026-01-31  
 **Change Log:** See `COMPANION_ProjectBuilder_Instructions.md` (Section: Change Log)
 
 ## 0. Operating file names (authoritative)

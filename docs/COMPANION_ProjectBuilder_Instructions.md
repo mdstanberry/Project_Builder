@@ -1,7 +1,7 @@
 # COMPANION — Project Builder (Execution)
 **Operational filename:** `COMPANION_ProjectBuilder_Instructions.md`  
-**Version:** v1.1.2-companion  
-**Effective date:** 2026-01-29  
+**Version:** v1.2.0-companion  
+**Effective date:** 2026-01-31  
 **Authority:** This document is the sole execution authority for intake sequencing, Q&A flow, file generation, command handling, and regression testing.
 
 ---
@@ -721,20 +721,15 @@ Generated Deployment Instructions must include:
 
 ## Y. Change log (required)
 
-- 2026-01-29 — v1.1.2-companion:
-  - Updated CORE ≤6000 procedure to be a user-driven guardrail (notify + choose next steps) rather than auto-trimming
-
-- 2026-01-29 — v1.1.1-companion:
-  - Removed `proceed_intent` references for internal consistency
-  - Added PB_QA refusal wording rule for generation requests (T-02 clarity)
-  - Added CORE ≤6000 mechanical enforcement procedure (T-05 guarantee)
-
-- 2026-01-29 — v1.1.0-companion:
-  - Added PB_REVISION mode for updating existing instruction files
+- 2026-01-31 — v1.2.0-companion:
+  - Public release version alignment for GitHub distribution
+  - Added `PB_REVISION` mode for updating existing instruction files
   - Added revision workflow (REV-UP-01 through REV-UP-06)
   - Updated PB-INT-00 to offer choice: Create New or Revise Existing
-  - Added workflow_type and revision fields to state model
-  - Added revision-specific test cases (T-13 through T-17)
+  - Added PB_QA refusal wording rule for generation requests (T-02 clarity)
+  - Updated CORE ≤6000 procedure to be a user-driven guardrail (warn with exact count + choose next steps)
+  - Removed `proceed_intent` references for internal consistency
+  - Added revision-specific test cases (T-13 through T-18)
 
 - 2026-01-29 — v1.0.0-companion:
   - Initial release
