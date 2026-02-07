@@ -50,3 +50,11 @@ logs/
 *.tmp
 *.temp
 .cache/
+
+# Project_Builder local artifacts (do not publish)
+docs/Archive/
+docs/Test_Output/
+docs/COMPANION_Instructions.md
+docs/COMPANION_Instructions_20260131-01.md
+docs/CORE_Instructions_20260131-01.md
+docs/Deployment_Instructions_Template_20260131-01.md
