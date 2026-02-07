@@ -51,6 +51,11 @@ logs/
 *.temp
 .cache/
 
+# Project Builder generated outputs (keep out of main)
+apps/CORE_*_Instructions_v*_*.md
+apps/COMPANION_*_Instructions_v*_*.md
+apps/Deployment_Instructions_*_v*_*.md
+
 # Project_Builder local artifacts (do not publish)
 docs/Archive/
 docs/Test_Output/
