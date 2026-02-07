@@ -1,5 +1,5 @@
 # Deployment Instructions Template
-**Template Version:** v1.2.0-template  
+**Template Version:** v1.2.4-template  
 **For use with:** Project Builder generated instruction files
 **Change Log:** See `COMPANION_ProjectBuilder_Instructions.md` (Section: Change log)
 
@@ -22,76 +22,139 @@ These instructions explain how to deploy your **{{PROJECT_NAME}}** instruction f
 - Knowledge files: {{KNOWLEDGE_FILE_LIST}}
 {{/IF_KNOWLEDGE_FILES}}
 
+#### Deployment placement rule (All Platforms) (authoritative)
+- **CORE** is the **only** file pasted into the platform’s **Project Instructions / System Instructions** field.
+- **COMPANION** is **never** pasted into the instructions field. It is **always uploaded as a Knowledge File** (project files / project knowledge / project documents / agent resources), alongside any other reference materials.
+
+**Rationale (operational):**
+- The instructions field must stay compact and stable (**CORE governs**).
+- Execution details, test scripts, and longer workflow scaffolding belong in **COMPANION** as a retrievable Knowledge File.
+
+**Suggested CORE wording (copy/paste):**
+- “Execution details are defined in the COMPANION knowledge file: `COMPANION_{{PROJECT_NAME}}_Instructions.md`.”
+
 ---
 
 ### 2. Platform Setup
 
-{{#IF_CHATGPT}}
-#### ChatGPT Project Setup
+{{#IF_CHATGPT_PROJECT}}
+#### ChatGPT — Project Setup
 
 1. **Open ChatGPT** at chat.openai.com
 2. **Navigate to Projects** (sidebar or menu)
 3. **Create new Project** or select existing one
 4. **Go to Project Settings**
-5. **Upload instruction files:**
-   - Click "Add files" or drag-and-drop
-   - Upload `CORE_{{PROJECT_NAME}}_Instructions.md` first
-   - Upload `COMPANION_{{PROJECT_NAME}}_Instructions.md` second
-6. **Set custom instructions** (if platform requires separate text):
-   - Copy the CORE file contents into the system instructions field
-   - Or reference the uploaded file
+5. **Project instructions / system instructions:** paste **CORE only**
+   - Paste the full contents of `CORE_{{PROJECT_NAME}}_Instructions.md`
+6. **Project files / knowledge:** upload **COMPANION** as a file
+   - Upload `COMPANION_{{PROJECT_NAME}}_Instructions.md`
+7. **Verify CORE references COMPANION**
+   - Confirm CORE includes a line stating: “Execution details are defined in the COMPANION knowledge file.”
 
 {{#IF_KNOWLEDGE_FILES}}
-7. **Upload knowledge files:**
+8. **Upload other knowledge files (if any):**
    - Add each knowledge file listed above
    - Verify files are properly indexed
 {{/IF_KNOWLEDGE_FILES}}
 
 {{#IF_WEB_SEARCH}}
-8. **Enable web search:**
+9. **Enable web search:**
    - Go to Project capabilities
    - Toggle on "Web browsing" or "Search"
 {{/IF_WEB_SEARCH}}
 
-9. **Save and test**
-{{/IF_CHATGPT}}
+10. **Save and test**
+{{/IF_CHATGPT_PROJECT}}
 
-{{#IF_CLAUDE}}
-#### Claude Project Setup
+{{#IF_CHATGPT_CUSTOM_GPT}}
+#### ChatGPT — Custom GPT Setup
+
+1. **Open ChatGPT** at chat.openai.com
+2. **Create or edit a Custom GPT**
+3. **Instructions / system instructions:** paste **CORE only**
+   - Paste the full contents of `CORE_{{PROJECT_NAME}}_Instructions.md`
+4. **Knowledge / files:** upload **COMPANION** as a file
+   - Upload `COMPANION_{{PROJECT_NAME}}_Instructions.md`
+5. **Verify CORE references COMPANION**
+   - Confirm CORE includes a line stating: “Execution details are defined in the COMPANION knowledge file.”
+6. **Platform constraints to verify:**
+   - Tool availability (web search, file handling) may differ from Projects
+7. **Save and test**
+{{/IF_CHATGPT_CUSTOM_GPT}}
+
+{{#IF_CLAUDE_PROJECT}}
+#### Claude — Project Setup
 
 1. **Open Claude** at claude.ai
 2. **Navigate to Projects** (sidebar)
 3. **Create new Project** or select existing one
-4. **Add project instructions:**
+4. **Project instructions / system instructions:** paste **CORE only**
    - Click "Set instructions" or "Edit project"
-   - Upload or paste CORE file contents
-5. **Add knowledge files:**
+   - Paste the full contents of `CORE_{{PROJECT_NAME}}_Instructions.md`
+5. **Project knowledge / documents:** upload **COMPANION** as a file
    - Click "Add content" or "Upload files"
    - Upload `COMPANION_{{PROJECT_NAME}}_Instructions.md`
+6. **Verify CORE references COMPANION**
+   - Confirm CORE includes a line stating: “Execution details are defined in the COMPANION knowledge file.”
+7. **First message (recommended):**
+   - Tell Claude: “Treat the uploaded `COMPANION_{{PROJECT_NAME}}_Instructions.md` as the execution playbook referenced by CORE.”
 {{#IF_KNOWLEDGE_FILES}}
-   - Upload each knowledge file
+8. **Upload other knowledge files (if any):**
+   - Upload each knowledge file listed above
 {{/IF_KNOWLEDGE_FILES}}
 
 {{#IF_WEB_SEARCH}}
-6. **Note on web search:**
+9. **Note on web search:**
    - Claude Projects support web search when available
    - If not available, the Project will note limitations
 {{/IF_WEB_SEARCH}}
 
+10. **Save and test**
+{{/IF_CLAUDE_PROJECT}}
+
+{{#IF_GEMINI_GEMS}}
+#### Gemini — GEMS Setup
+
+1. **Open Gemini**
+2. **Create or edit a GEM**
+3. **Instructions / system instructions:** paste **CORE only**
+   - Paste the full contents of `CORE_{{PROJECT_NAME}}_Instructions.md`
+4. **Knowledge / files / sources:** upload **COMPANION** as a file (if supported)
+   - Upload `COMPANION_{{PROJECT_NAME}}_Instructions.md`
+5. **Verify CORE references COMPANION**
+   - Confirm CORE includes a line stating: “Execution details are defined in the COMPANION knowledge file.”
+6. **Platform constraints to verify:**
+   - Output formatting and tool availability may differ
 7. **Save and test**
-{{/IF_CLAUDE}}
+{{/IF_GEMINI_GEMS}}
+
+{{#IF_COPILOT_AGENT}}
+#### Microsoft Copilot — Agent Setup
+
+1. **Open Microsoft Copilot / Copilot Studio (as applicable)**
+2. **Create or edit an Agent**
+3. **System instructions:** paste **CORE only**
+   - Paste the full contents of `CORE_{{PROJECT_NAME}}_Instructions.md` into the Agent’s system instructions (or equivalent control plane)
+4. **Agent knowledge / resources:** upload **COMPANION** as a file (if supported)
+   - Upload `COMPANION_{{PROJECT_NAME}}_Instructions.md`
+5. **Verify CORE references COMPANION**
+   - Confirm CORE includes a line stating: “Execution details are defined in the COMPANION knowledge file.”
+6. **Platform constraints to verify:**
+   - Command syntax, tool availability, and file handling may differ
+7. **Save and test**
+{{/IF_COPILOT_AGENT}}
 
 ---
 
-### 3. File Upload Order
+### 3. File placement summary (All Platforms)
 
-Upload files in this specific order for best results:
+Use this placement rule for best results:
 
-1. **CORE file first** — Establishes governance
-2. **COMPANION file second** — Provides execution logic
-3. **Knowledge files** — Reference materials (if applicable)
+1. **Paste CORE** into **Project/System Instructions**
+2. **Upload COMPANION** as a **Knowledge File**
+3. **Upload other knowledge files** (if applicable)
 
-**Why order matters:** The AI reads files in order. CORE should be processed first to establish rules before execution logic.
+**Why this matters:** The instructions field should remain compact and stable. CORE governs; COMPANION provides execution details as retrievable knowledge.
 
 ---
 
@@ -147,6 +210,12 @@ Run these tests to verify your Project works correctly:
 #### T-06: Output Format
 **Action:** Request a typical task from the Project.  
 **Expected:** Response follows the configured output style ({{OUTPUT_STYLE}}).
+
+#### Verification check (commands + intake)
+1) Run a configured command (if any), such as `/help` or `/export`.  
+**Expected:** It reflects the modes and commands defined in COMPANION.
+2) Ask a topic question and confirm behavior.  
+**Expected:** Intake (if configured) matches COMPANION’s intake sequence, and responses follow CORE rules.
 
 {{#IF_COMMANDS}}
 #### T-07: Command Routing
@@ -241,7 +310,7 @@ When generating deployment instructions, replace these placeholders:
 | Placeholder | Description |
 |-------------|-------------|
 | `{{PROJECT_NAME}}` | Name of the user's project |
-| `{{PLATFORM_NAME}}` | ChatGPT Project, Claude Project, or Both |
+| `{{PLATFORM_NAME}}` | One or more of: ChatGPT Project, ChatGPT Custom GPT, Claude Project, Gemini GEMS, Microsoft Copilot Agent |
 | `{{PROJECT_PURPOSE}}` | One-line description of project purpose |
 | `{{OUTPUT_STYLE}}` | Brief, Moderate, or Verbose |
 | `{{CORE_VERSION}}` | Version from generated CORE file |
@@ -253,8 +322,11 @@ When generating deployment instructions, replace these placeholders:
 | `{{KNOWLEDGE_FILE_TABLE}}` | Markdown table of knowledge files |
 
 Conditional blocks:
-- `{{#IF_CHATGPT}}...{{/IF_CHATGPT}}` — Include for ChatGPT Projects
-- `{{#IF_CLAUDE}}...{{/IF_CLAUDE}}` — Include for Claude Projects
+- `{{#IF_CHATGPT_PROJECT}}...{{/IF_CHATGPT_PROJECT}}` — Include for ChatGPT Projects
+- `{{#IF_CHATGPT_CUSTOM_GPT}}...{{/IF_CHATGPT_CUSTOM_GPT}}` — Include for ChatGPT Custom GPTs
+- `{{#IF_CLAUDE_PROJECT}}...{{/IF_CLAUDE_PROJECT}}` — Include for Claude Projects
+- `{{#IF_GEMINI_GEMS}}...{{/IF_GEMINI_GEMS}}` — Include for Gemini GEMS
+- `{{#IF_COPILOT_AGENT}}...{{/IF_COPILOT_AGENT}}` — Include for Microsoft Copilot Agents
 - `{{#IF_KNOWLEDGE_FILES}}...{{/IF_KNOWLEDGE_FILES}}` — Include if knowledge files used
 - `{{#IF_NO_KNOWLEDGE_FILES}}...{{/IF_NO_KNOWLEDGE_FILES}}` — Include if no knowledge files
 - `{{#IF_INTAKE}}...{{/IF_INTAKE}}` — Include if intake process defined
