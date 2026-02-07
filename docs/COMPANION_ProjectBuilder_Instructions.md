@@ -765,14 +765,14 @@ Generated Deployment Instructions must include:
   - Added hard rules to suppress internal step IDs/status annotations and suppress user-visible knowledge file references in prompts
   - Clarified that intake sequence step IDs are internal-only and must not appear in the user-visible question text
 
+- 2026-02-02 — v1.2.2-companion:
+  - Removed “Step completed / Step not completed” line from PB_INTAKE output contract
+  - Added `start` trigger to jump cleanly to PB-INT-00 Welcome without “Step not completed” messaging
+
 - 2026-02-01 — v1.2.1-companion:
   - Strengthened deterministic intake-sequence generation guidance for projects requiring intake (QA-03)
   - Required draft file outputs to be in separate blocks with filenames
   - Required approval before generating downloadable `.md` files
-
-- 2026-02-02 — v1.2.2-companion:
-  - Removed “Step completed / Step not completed” line from PB_INTAKE output contract
-  - Added `start` trigger to jump cleanly to PB-INT-00 Welcome without “Step not completed” messaging
 
 - 2026-01-31 — v1.2.0-companion:
   - Public release version alignment for GitHub distribution
