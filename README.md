@@ -28,7 +28,7 @@ The Project Builder generates three files:
 
 ## How to Use
 
-1. Upload the `CORE_ProjectBuilder_Instructions.md` and `COMPANION_ProjectBuilder_Instructions.md` files to your ChatGPT or Claude Project
+1. Upload the `CORE_ProjectBuilder_Instructions.md` and `COMPANION_ProjectBuilder_Instructions.md` files to your selected platform
 2. Start a new conversation
 3. Follow the guided intake and Q&A process
 4. Review and approve draft files
