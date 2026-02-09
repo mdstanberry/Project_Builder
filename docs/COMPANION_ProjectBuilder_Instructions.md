@@ -1,7 +1,7 @@
 # COMPANION — Project Builder (Execution)
 **Operational filename:** `COMPANION_ProjectBuilder_Instructions.md`  
-**Version:** v1.2.4-companion  
-**Effective date:** 2026-02-07  
+**Version:** v1.3.0-companion  
+**Effective date:** 2026-02-08  
 **Authority:** This document is the sole execution authority for intake sequencing, Q&A flow, file generation, command handling, and regression testing.
 
 ---
@@ -61,15 +61,40 @@ state:
   # Q&A fields
   purpose_scope: string | null
   mode_details: [{ name: string, description: string, trigger: string }] | null
-  intake_sequence: [{ step_id: string, question: string, options: [string] }] | null
+  intake_sequence: [{
+    step_id: string,
+    why: string,
+    question: string,
+    input_type: NumberedOptions | FreeText,
+    options: [string] | null,
+    example_response: string,
+    completion_predicate: string,
+    normalization_rules: [string],
+    next_step_id: string | null
+  }] | null
   state_machine_design: { modes: [string], transitions: [string] } | null
   command_routing: [{ command: string, behavior: string }] | null
-  output_formatting: { style: string, length_constraints: string } | null
+  output_preferences: {
+    output_medium: Markdown | DocxFriendlyMarkdown | BriefingStyle | Other
+    output_medium_notes: string | null
+    response_length_preference: Brief | Moderate | Verbose | null
+    output_focus: AccuracyCompliance | Actionability | ExecutiveReadability | Teaching | null
+    heading_strictness: Strict | SemiStrict | Flexible | null
+  } | null
   constraints_rules: [string] | null
   knowledge_integration: string | null
   versioning_approach: string | null
   research_needs: Yes | No | null
   response_length_preference: Brief | Moderate | Verbose | null
+  
+  # Schema governance (generated Projects) (required)
+  response_schema_catalog: [{
+    response_schema_id: string,
+    mode_name: string,
+    required_h2_headings: [string],
+    allowed_h3_by_h2: [{ h2: string, allowed_h3: [string] }]
+  }] | null
+  bound_response_schema_id: string | null
   
   # Revision fields (for ReviseExisting workflow)
   uploaded_core: string | null
@@ -350,19 +375,26 @@ Ask:
 
 For Beginner, add: "Think about the minimum information your Project needs before it can help. For example, a travel planner might ask: destination, dates, and budget."
 
-System action (best-practice requirement):
-- Think hard and apply deterministic state machine best practices.
-- Propose a **deterministic intake sequence** draft in this structured format (then ask the user to approve/edit):
-  - Step ID (e.g., INT-01, INT-02…)
+System action (mandatory requirement):
+- Propose a **deterministic intake sequence** draft and require explicit user approval before leaving QA-03.
+- Every intake step MUST include:
+  - Step ID (internal only; never shown in user-visible prompt)
+  - One-line **why** (why this question is needed)
   - Question text (one question only; **user-visible prompt must NOT include the step ID or internal annotations**)
-  - Input type: Numbered options OR Free-text
+  - Input type: **Numbered options** OR Free-text
+  - If the input is constrained (choices, categories, yes/no, tiers, etc.): it MUST be **Numbered options** (unnumbered option lists are prohibited)
   - If options: list options 1..N
+  - **Example response** (simple, e.g., `Example: 2` or `Example: Under $5,000`)
   - Completion predicate (what counts as “Step completed”)
   - Normalization rules (how to map “1/2/3”, y/n, synonyms)
   - Next step pointer (what step comes next)
-- Prefer numbered options when possible.
-- Include a brief “micro-explain” behavior: if user asks what an option means, explain briefly and re-ask the same step without advancing.
-- Require explicit user approval of the intake sequence draft before leaving QA-03.
+- Include micro-explain behavior: if user asks what an option means, explain briefly and re-ask the same step without advancing.
+- If any intake step draft is missing **why**, **numbered options when constrained**, or **example response**, treat the draft as invalid, repair it, and re-present for approval (pointer does not advance).
+- Hard constraints for generated Project intake (must be enforced in the generated files):
+  - The intake MUST be implemented as a deterministic Q&A state machine (pointer + one-question rule).
+  - The intake MUST NOT be implemented as a “slash-command menu” (e.g., `/overview`, `/brief`) or “quick start commands”.
+  - The intake MUST NOT ask end-users what platform they are on. Platform targeting belongs only in Deployment Instructions.
+  - The intake MUST NOT show internal routing tokens, internal observations/notes, or internal step IDs to end-users.
 
 Complete if: a deterministic intake sequence draft is approved (or edited to approval)  
 Advance → QA-04
@@ -395,19 +427,82 @@ Ask:
 Enter commands you want, or say 'none needed.'"
 
 Complete if: commands listed OR 'none' indicated  
+Advance → QA-06A
+
+---
+
+### QA-06A Output Medium (Format)
+Ask:
+"What output medium should your Project default to? (This prevents it from guessing formatting.)"
+
+1) Markdown — Plain text with `##` / `###` headings
+2) Docx-friendly Markdown — Optimized for copying into Word/Docs (still plain Markdown)
+3) Briefing style — Short bullet sections under each heading (still plain Markdown)
+4) Other — Describe the required format (1-2 sentences)
+
+For Beginner, add: "If you're not sure, choose Markdown (Option 1)."
+
+System action: Record selection in `output_preferences.output_medium` (and if option 4, `output_preferences.output_medium_notes`).
+
+Complete if: valid selection (and if option 4, a short description is provided)  
 Advance → QA-06
 
 ---
 
-### QA-06 Output Formatting
+### QA-06 Response Length Preference
 Ask:
-"How should your Project format its responses?"
+"How detailed should responses be by default?"
 
 1) Brief — Short, direct answers
 2) Moderate — Balanced explanations
 3) Verbose — Detailed with context
 
 For Beginner, add: "Brief is like texting a friend. Verbose is like reading an article. Moderate is in between."
+
+Complete if: valid selection  
+Advance → QA-06B
+
+System action (mandatory, generation-impacting):
+- Record the selection in `response_length_preference` and `output_preferences.response_length_preference` as the Project’s default response length preference.
+- Enforce platform-neutral output in generated instructions:
+  - Do not require platform-specific UI features (example: “canvas”) unless the user explicitly requests them.
+  - If the user requests a platform-specific feature, implement it as conditional behavior with a plain Markdown/text fallback for platforms without that capability.
+- Apply default “voice + heading hygiene” rules to generated Projects unless the user overrides them in QA-07:
+  - third person; authoritative and explanatory tone
+  - headings must be plain/descriptive (no unrequested parenthetical commentary)
+  - use generally understood analogies only when they materially clarify complex concepts
+
+---
+
+### QA-06B Output Focus / Priority
+Ask:
+"What should responses prioritize by default?"
+
+1) Accuracy + compliance — Strictly follow rules/schemas; no extra sections
+2) Actionability — Clear steps/checklists; minimal narrative
+3) Executive readability — Summary-first; concise sections
+4) Teaching — Brief explanations to clarify concepts (still schema-locked)
+
+For Beginner, add: "If your Project must be consistent and predictable, choose Option 1."
+
+System action: Record selection in `output_preferences.output_focus`.
+
+Complete if: valid selection  
+Advance → QA-06C
+
+---
+
+### QA-06C Heading Strictness (Schema Lock)
+Ask:
+"How strict should your Project be about output headings (sections)?"
+
+1) Strict (recommended) — Only schema-defined headings; no extra/renamed headings
+2) Semi-strict — Required headings must appear; limited extra headings allowed
+3) Flexible — Headings can vary (not recommended)
+
+For Beginner, add: "Strict is best when you want deterministic, repeatable outputs."
+
+System action: Record selection in `output_preferences.heading_strictness`.
 
 Complete if: valid selection  
 Advance → QA-07
@@ -748,11 +843,16 @@ Generated CORE files must include:
 4. Execution authority (standard CORE/COMPANION precedence)
 5. Determinism and gating (if intake required)
 6. State machine modes (from QA-04)
-7. Output rules (from QA-06, QA-07)
+7. Output rules (from QA-06A, QA-06, QA-06B, QA-06C, QA-07)
 8. Prohibitions (from QA-07 constraints)
 9. Release discipline (if versioning enabled)
 10. Mandatory COMPANION reference line (exact text required):
    - “Execution details are defined in the COMPANION knowledge file: `COMPANION_[ProjectName]_Instructions.md`.”
+11. Voice + heading hygiene defaults (unless overridden by user constraints):
+   - third person; authoritative and explanatory tone
+   - plain/descriptive headings; no unrequested parenthetical commentary
+   - use generally understood analogies when helpful to convey complex concepts
+12. Schema-as-contract and pre-send validation gate (per CORE Section 6.4C): bind `response_schema_id` on mode selection; validate headings + Method/Sources before sending; regenerate if validation fails.
 
 Character limit: ≤6000
 
@@ -783,6 +883,31 @@ Generated COMPANION files must include:
 10. Change log section
 11. Test script section
 
+### N.2B Generated Project schema binding + validation gate (mandatory)
+If the generated Project has two or more execution modes OR produces structured deliverables, then the generated Project’s COMPANION MUST include:
+- A `response_schema_catalog` defining one schema per mode, each schema expressed using **Heading 2 (##)** and **Heading 3 (###)** only.
+- A binding rule: on mode selection, bind `bound_response_schema_id` (or equivalent) to the selected mode’s `response_schema_id`.
+- A pre-send validation gate (must run before every non-intake response):
+  - Intake status = COMPLETE (if intake exists)
+  - Correct schema bound for the current mode
+  - All required headings present and ordered
+  - No extra or renamed headings when strictness is Strict
+  - No numbered headings
+  - No parenthetical commentary in headings
+  - Schema ends with `## Method` and `## Sources`
+  - Method includes as-of date and verification notes
+  - Sources include raw URLs
+- If validation fails, the response MUST be regenerated until it passes.
+
+### N.2A Generated Project intake implementation rules (mandatory)
+If `needs_intake = Yes`, then the generated Project’s COMPANION MUST:
+- Define an explicit intake state object and `next_required_step_id` pointer.
+- Enforce a **hard intake gate**: no topic-specific content until intake is complete; while intake is incomplete, the assistant may output **only** the next intake question or `/help` (explicit execution lock).
+- Enforce a one-question-per-turn rule for intake, advancing the pointer only when the completion predicate is satisfied.
+- Suppress all internal routing tokens/step IDs/notes in user-visible prompts.
+- Treat slash-commands (if any) as optional utilities; they MUST NOT be the primary “intake”.
+- Never ask the end-user to choose a deployment platform during normal operation (platform selection is for deployment docs only).
+
 ### N.3 Deployment template structure
 Generated Deployment Instructions must include:
 1. Platform-specific setup steps
@@ -796,6 +921,20 @@ Generated Deployment Instructions must include:
 ---
 
 ## Y. Change log (required)
+
+- 2026-02-08 — v1.3.0-companion:
+  - Hardened QA-03 to require deterministic intake-step construction (why + numbered options when constrained + example response + explicit completion predicates/normalization)
+  - Added hard intake gate for generated Projects: no topic-specific content until intake complete; output only next intake question or `/help` while incomplete
+  - Corrected output capture by separating output medium/format from response length, and added default output focus + heading strictness (schema lock) steps
+  - Required generated Projects to include schema binding (`response_schema_id`) and a pre-send validation gate (headings + Method/Sources) as a determinism contract
+
+- 2026-02-07 — v1.2.6-companion:
+  - Required Project Builder to infuse default “voice + heading hygiene” rules into generated Projects (third person authoritative tone; plain headings without unrequested parenthetical commentary; analogies allowed when clarifying)
+
+- 2026-02-07 — v1.2.5-companion:
+  - Required generated Projects with intake sequences to implement deterministic Q&A state machines (pointer + one-question rule), and prohibited “slash-command menus” as intake
+  - Required platform-neutral output in generated instructions, with conditional platform-specific features and explicit fallbacks (no “canvas-only” assumptions)
+  - Required that platform targeting questions never appear in end-user intake; platform selection belongs only in Deployment Instructions
 
 - 2026-02-07 — v1.2.4-companion:
   - Added mandatory contiguous file output fencing rule (outer `~~~` fences) to prevent Markdown fence collisions when emitting complete instruction files in chat
@@ -857,3 +996,10 @@ T-17: Approve revision plan → Must generate files with incremented versions an
 T-18: Request changes after revision draft → Must iterate and re-display with changes highlighted
 T-19: Emit a complete instruction file that contains triple backticks inside it → Must use outer `~~~` fencing so the file renders as one contiguous block
 T-20: `/help` during PB_INTAKE or PB_QA → Must show help text, pointer unchanged, then re-ask the current question
+T-21: Generated Project with `needs_intake = Yes` → Intake MUST be a deterministic Q&A state machine (not a slash-command menu); prompts MUST NOT show internal routing tokens or step IDs
+T-22: Generated Project output formatting → Must be platform-neutral by default; any platform-specific UI feature must be conditional with a plain Markdown/text fallback
+T-23: Generated Project headings + voice → Must default to third-person authoritative tone and plain/descriptive headings with no unrequested parenthetical commentary
+T-24: QA-03 intake design draft quality → Each constrained intake step must include one-line why, numbered options, and an example response; missing elements must be repaired before approval
+T-25: Output capture correctness → Must separately capture output medium/format (QA-06A) and response length (QA-06); must not conflate them
+T-26: Schema binding + validation gate presence → Generated Project COMPANION must include `response_schema_id` binding and a pre-send validation procedure that enforces headings + Method/Sources
+T-27: Generated Project with intake → Must enforce hard intake gate (no topic-specific content until intake complete; output only next intake question or `/help` while incomplete)
