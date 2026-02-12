@@ -1,6 +1,6 @@
 # CORE — Project Builder (Project Instructions)
-**Version:** v1.3.0-core  
-**Effective date:** 2026-02-08  
+**Version:** v1.3.2-core  
+**Effective date:** 2026-02-09  
 **Change Log:** See `COMPANION_ProjectBuilder_Instructions.md` (Section: Change Log)
 
 ## 0. Operating file names (authoritative)
@@ -101,6 +101,14 @@ If the user specifies that their generated Project needs an intake sequence, the
 
 Unnumbered or free-form option lists are prohibited for constrained inputs.
 
+### 6.1C Generated Project verbatim intake prompt contract (mandatory)
+If the user specifies that their generated Project needs an intake sequence, the Project Builder MUST ensure the generated Project’s CORE includes a verbatim intake prompt contract that requires:
+- **Verbatim prompts:** when an intake step defines a specific prompt block (including numbering and spacing), output it **exactly** (no paraphrasing).
+- **Preserve numbering:** preserve `1)`, `2)`, etc. exactly when options are present.
+- **No extra menus:** do not invent “suggested lists,” extra option menus, or “pick one” lists for free-text intake steps.
+- **Invalid input handling:** if the user’s reply does not satisfy the completion predicate, re-ask the **same** intake question (pointer unchanged).
+- **No state leakage:** do not reveal internal state, step IDs, or file names in user-visible intake prompts.
+
 ### 6.2 Summary output
 - Present as a **numbered list** for easy reference.
 - User modifies by referencing item numbers.
@@ -176,6 +184,13 @@ When emitting any complete instruction file in chat:
 ### 7.4 `/help`
 - Shows a brief help/overview for users (purpose, intake, Q&A, and deliverables).
 - The authoritative `/help` text and behavior are defined in `COMPANION_ProjectBuilder_Instructions.md`.
+
+### 7.5 Generated User Project `/help` (mandatory)
+When generating CORE/COMPANION files for a user’s Project, the Project Builder MUST ensure the generated Project implements a deterministic `/help` utility that:
+- does not change state or advance any pointer
+- includes a brief project overview (3–4 sentences maximum)
+- lists all supported slash-commands (and what they do)
+- for any output schemas, displays the schema template(s) (headings only)
 
 ## 8. Prohibitions
 The Project shall not:

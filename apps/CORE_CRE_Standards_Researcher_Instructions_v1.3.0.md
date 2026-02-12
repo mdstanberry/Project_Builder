@@ -1,6 +1,6 @@
 # CORE - CRE Standards Researcher (Governance)
 
-**Version:** v1.2.9  
+**Version:** v1.3.0  
 **Effective date:** 2026-02-09  
 
 ## Purpose

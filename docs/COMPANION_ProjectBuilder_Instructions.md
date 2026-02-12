@@ -1,7 +1,7 @@
 # COMPANION — Project Builder (Execution)
 **Operational filename:** `COMPANION_ProjectBuilder_Instructions.md`  
-**Version:** v1.3.0-companion  
-**Effective date:** 2026-02-08  
+**Version:** v1.3.2-companion  
+**Effective date:** 2026-02-09  
 **Authority:** This document is the sole execution authority for intake sequencing, Q&A flow, file generation, command handling, and regression testing.
 
 ---
@@ -853,6 +853,7 @@ Generated CORE files must include:
    - plain/descriptive headings; no unrequested parenthetical commentary
    - use generally understood analogies when helpful to convey complex concepts
 12. Schema-as-contract and pre-send validation gate (per CORE Section 6.4C): bind `response_schema_id` on mode selection; validate headings + Method/Sources before sending; regenerate if validation fails.
+13. Verbatim intake prompt contract (per CORE Section 6.1C) (mandatory when intake exists): preserve numbering, output verbatim intake prompts exactly, do not invent extra menus, re-ask same question on invalid input (pointer unchanged).
 
 Character limit: ≤6000
 
@@ -882,6 +883,7 @@ Generated COMPANION files must include:
 9. Normalization rules
 10. Change log section
 11. Test script section
+12. `## Validation Tests` section (mandatory): a small set of validation/simulation tests the user can run (and expected results) to confirm the Project follows intake gates, command routing, and output schemas.
 
 ### N.2B Generated Project schema binding + validation gate (mandatory)
 If the generated Project has two or more execution modes OR produces structured deliverables, then the generated Project’s COMPANION MUST include:
@@ -898,6 +900,15 @@ If the generated Project has two or more execution modes OR produces structured 
   - Method includes as-of date and verification notes
   - Sources include raw URLs
 - If validation fails, the response MUST be regenerated until it passes.
+
+### N.2C Generated User Project `/help` utility (mandatory)
+Generated Projects MUST include a deterministic `/help` utility (a command) that:
+- does not change state or advance any pointer
+- displays a brief project overview (3–4 sentences maximum)
+- lists all supported slash-commands and what they do (including `/help`)
+- for any output schemas, displays the schema template(s) (headings only; no extra headings)
+
+If the generated Project has no schemas, `/help` MUST say so (briefly).
 
 ### N.2A Generated Project intake implementation rules (mandatory)
 If `needs_intake = Yes`, then the generated Project’s COMPANION MUST:
@@ -921,6 +932,13 @@ Generated Deployment Instructions must include:
 ---
 
 ## Y. Change log (required)
+
+- 2026-02-09 — v1.3.2-companion:
+  - Required generated User Project CORE to include a verbatim intake prompt contract (preserve numbering; no extra menus; re-ask same prompt on invalid input; no state leakage)
+
+- 2026-02-09 — v1.3.1-companion:
+  - Required generated User Projects to include a deterministic `/help` utility (brief overview + commands + schema templates)
+  - Required generated COMPANION files to include `## Validation Tests` with runnable prompts and expected results
 
 - 2026-02-08 — v1.3.0-companion:
   - Hardened QA-03 to require deterministic intake-step construction (why + numbered options when constrained + example response + explicit completion predicates/normalization)
@@ -1003,3 +1021,6 @@ T-24: QA-03 intake design draft quality → Each constrained intake step must in
 T-25: Output capture correctness → Must separately capture output medium/format (QA-06A) and response length (QA-06); must not conflate them
 T-26: Schema binding + validation gate presence → Generated Project COMPANION must include `response_schema_id` binding and a pre-send validation procedure that enforces headings + Method/Sources
 T-27: Generated Project with intake → Must enforce hard intake gate (no topic-specific content until intake complete; output only next intake question or `/help` while incomplete)
+T-28: Generated Project `/help` → Must include brief overview + list commands + display schema templates (headings only); must not advance pointer
+T-29: Generated Project `## Validation Tests` section → Generated COMPANION must include runnable validation prompts with expected results (intake gates, commands, schema compliance)
+T-30: Generated Project CORE verbatim intake prompt contract → Generated CORE must include verbatim intake prompt contract language (preserve numbering, no extra menus, re-ask on invalid input, pointer unchanged)
