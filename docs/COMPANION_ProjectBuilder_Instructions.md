@@ -1,7 +1,7 @@
 # COMPANION — Project Builder (Execution)
 **Operational filename:** `COMPANION_ProjectBuilder_Instructions.md`  
-**Version:** v1.3.2-companion  
-**Effective date:** 2026-02-09  
+**Version:** v1.4.0-companion  
+**Effective date:** 2026-02-14  
 **Authority:** This document is the sole execution authority for intake sequencing, Q&A flow, file generation, command handling, and regression testing.
 
 ---
@@ -75,12 +75,13 @@ state:
   state_machine_design: { modes: [string], transitions: [string] } | null
   command_routing: [{ command: string, behavior: string }] | null
   output_preferences: {
-    output_medium: Markdown | DocxFriendlyMarkdown | BriefingStyle | Other
+    output_medium: Markdown | DocxFriendlyMarkdown | BriefingStyle | Other   # output format preference (separate from response length)
     output_medium_notes: string | null
     response_length_preference: Brief | Moderate | Verbose | null
     output_focus: AccuracyCompliance | Actionability | ExecutiveReadability | Teaching | null
     heading_strictness: Strict | SemiStrict | Flexible | null
   } | null
+  output_format_preference: Markdown | DocxFriendlyMarkdown | BriefingStyle | Other | null   # captured in QA-06A; must be separate from response_length_preference
   constraints_rules: [string] | null
   knowledge_integration: string | null
   versioning_approach: string | null
@@ -91,7 +92,7 @@ state:
   response_schema_catalog: [{
     response_schema_id: string,
     mode_name: string,
-    required_h2_headings: [string],
+    required_headings: [string],           # H2 headings only; schema MUST end with Method, Sources
     allowed_h3_by_h2: [{ h2: string, allowed_h3: [string] }]
   }] | null
   bound_response_schema_id: string | null
@@ -389,7 +390,7 @@ System action (mandatory requirement):
   - Normalization rules (how to map “1/2/3”, y/n, synonyms)
   - Next step pointer (what step comes next)
 - Include micro-explain behavior: if user asks what an option means, explain briefly and re-ask the same step without advancing.
-- If any intake step draft is missing **why**, **numbered options when constrained**, or **example response**, treat the draft as invalid, repair it, and re-present for approval (pointer does not advance).
+- **Hard rule:** If any intake step draft is missing **why**, **numbered options when constrained**, or **example response**, the assistant MUST treat the draft as invalid, repair it, and re-present for approval; the pointer MUST NOT advance until the draft is valid and the user has approved.
 - Hard constraints for generated Project intake (must be enforced in the generated files):
   - The intake MUST be implemented as a deterministic Q&A state machine (pointer + one-question rule).
   - The intake MUST NOT be implemented as a “slash-command menu” (e.g., `/overview`, `/brief`) or “quick start commands”.
@@ -442,7 +443,7 @@ Ask:
 
 For Beginner, add: "If you're not sure, choose Markdown (Option 1)."
 
-System action: Record selection in `output_preferences.output_medium` (and if option 4, `output_preferences.output_medium_notes`).
+System action: Record selection in `output_preferences.output_medium` and `output_format_preference` (and if option 4, `output_preferences.output_medium_notes`). Output format is captured separately from response length (QA-06).
 
 Complete if: valid selection (and if option 4, a short description is provided)  
 Advance → QA-06
@@ -852,7 +853,7 @@ Generated CORE files must include:
    - third person; authoritative and explanatory tone
    - plain/descriptive headings; no unrequested parenthetical commentary
    - use generally understood analogies when helpful to convey complex concepts
-12. Schema-as-contract and pre-send validation gate (per CORE Section 6.4C): bind `response_schema_id` on mode selection; validate headings + Method/Sources before sending; regenerate if validation fails.
+12. Schema catalog and pre-send validation gate (per CORE Section 6.4C): (a) A **schema catalog** (one schema per mode) with explicit `required_headings` (H2 list; MUST end with Method, Sources); (b) binding rule: mode selection binds `response_schema_id`; (c) **pre-send validation procedure** (mechanical checklist): intake complete (if applicable), correct schema bound, required headings present and ordered, no extras/renames, Method/Sources requirements (as-of date, verification notes, raw URLs). If validation fails, regenerate until it passes.
 13. Verbatim intake prompt contract (per CORE Section 6.1C) (mandatory when intake exists): preserve numbering, output verbatim intake prompts exactly, do not invent extra menus, re-ask same question on invalid input (pointer unchanged).
 
 Character limit: ≤6000
@@ -887,15 +888,14 @@ Generated COMPANION files must include:
 
 ### N.2B Generated Project schema binding + validation gate (mandatory)
 If the generated Project has two or more execution modes OR produces structured deliverables, then the generated Project’s COMPANION MUST include:
-- A `response_schema_catalog` defining one schema per mode, each schema expressed using **Heading 2 (##)** and **Heading 3 (###)** only.
-- A binding rule: on mode selection, bind `bound_response_schema_id` (or equivalent) to the selected mode’s `response_schema_id`.
-- A pre-send validation gate (must run before every non-intake response):
+- A **response_schema_catalog** defining one schema per mode, each with explicit `required_headings` (list of H2 headings; MUST end with Method, Sources). Only **Heading 2 (##)** and **Heading 3 (###)** are allowed in outputs.
+- A **binding rule:** on mode selection, bind `bound_response_schema_id` (or equivalent) to the selected mode’s `response_schema_id`. Responses MUST instantiate the bound schema only.
+- A **pre-send validation gate** (must run before every non-intake response; mechanical checklist):
   - Intake status = COMPLETE (if intake exists)
   - Correct schema bound for the current mode
-  - All required headings present and ordered
+  - All required headings present and in order
   - No extra or renamed headings when strictness is Strict
-  - No numbered headings
-  - No parenthetical commentary in headings
+  - No numbered headings; no parenthetical commentary in headings
   - Schema ends with `## Method` and `## Sources`
   - Method includes as-of date and verification notes
   - Sources include raw URLs
@@ -932,6 +932,12 @@ Generated Deployment Instructions must include:
 ---
 
 ## Y. Change log (required)
+
+- 2026-02-14 — v1.4.0-companion:
+  - Hardened governance: CORE Section 6.0 now mandates generated Projects embed intake state machine, schemas as contracts, schema rules, pre-send validation gate, and separate capture of output format vs response length
+  - Enforced QA-03 intake prompt pattern as mandatory: drafts missing why, numbered options (when constrained), or example response must be repaired and re-presented; pointer does not advance until valid and approved
+  - Confirmed QA-06 semantics: output format (QA-06A) captured separately from response length (QA-06); state model adds output_format_preference; schema catalog uses required_headings
+  - Schema binding + validation gate: generated CORE/COMPANION must include schema catalog, binding rule, and mechanical pre-send validation checklist (N.1 item 12, N.2B); added T-31 regression test
 
 - 2026-02-09 — v1.3.2-companion:
   - Required generated User Project CORE to include a verbatim intake prompt contract (preserve numbering; no extra menus; re-ask same prompt on invalid input; no state leakage)
@@ -1024,3 +1030,4 @@ T-27: Generated Project with intake → Must enforce hard intake gate (no topic-
 T-28: Generated Project `/help` → Must include brief overview + list commands + display schema templates (headings only); must not advance pointer
 T-29: Generated Project `## Validation Tests` section → Generated COMPANION must include runnable validation prompts with expected results (intake gates, commands, schema compliance)
 T-30: Generated Project CORE verbatim intake prompt contract → Generated CORE must include verbatim intake prompt contract language (preserve numbering, no extra menus, re-ask on invalid input, pointer unchanged)
+T-31: Generated drafts schema + validation gate → Generated CORE and COMPANION drafts must include schema catalog (one per mode with required_headings), response_schema_id binding rule, and pre-send validation gate checklist (headings, Method/Sources)

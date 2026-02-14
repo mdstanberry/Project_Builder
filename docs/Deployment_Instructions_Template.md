@@ -1,6 +1,6 @@
 # Deployment Instructions Template
-**Template Version:** v1.2.4-template  
-**For use with:** Project Builder generated instruction files
+**Template Version:** v1.4.0-template  
+**For use with:** Project Builder CORE v1.4.0 / COMPANION v1.4.0 (or compatible)
 **Change Log:** See `COMPANION_ProjectBuilder_Instructions.md` (Section: Change log)
 
 ---

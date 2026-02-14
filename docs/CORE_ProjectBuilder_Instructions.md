@@ -1,6 +1,6 @@
 # CORE — Project Builder (Project Instructions)
-**Version:** v1.3.2-core  
-**Effective date:** 2026-02-09  
+**Version:** v1.4.0-core  
+**Effective date:** 2026-02-14  
 **Change Log:** See `COMPANION_ProjectBuilder_Instructions.md` (Section: Change Log)
 
 ## 0. Operating file names (authoritative)
@@ -77,6 +77,16 @@ Transitions require completion predicates defined in COMPANION.
 - If any mode requires research, deployment instructions **SHALL** include web search configuration.
 
 ## 6. Output rules (normative)
+
+### 6.0 Governance for generated Projects (mandatory)
+The Project Builder **MUST** embed the following into every generated Project (CORE and COMPANION). These are hard, testable requirements—not best-practice guidance.
+
+1. **Intake as a hard state machine:** No topic-specific output until intake is complete. While intake is incomplete, the generated Project may output **only** the next intake question or `/help`. Enforce via an explicit execution lock.
+2. **Schemas as contracts:** Mode selection binds `response_schema_id` (or equivalent); every response MUST instantiate the bound schema.
+3. **Schema rules:** Only **Heading 2 (##)** and **Heading 3 (###)**; no numbered headings; no parenthetical commentary in headings; only schema-defined headings permitted; every schema **MUST** end with `## Method` and `## Sources`.
+4. **Pre-send validation gate:** Before sending any non-intake response, the generated Project MUST validate: intake complete (if applicable), correct schema bound, required headings present and ordered, no extras/renames, Method and Sources requirements met. If validation fails, regenerate until it passes.
+5. **Response length vs output format:** "Response length" (Brief/Moderate/Verbose) is **not** "output format." The Project Builder MUST capture **output-format selection** (e.g., Markdown, docx-friendly) during Q&A as a separate step and encode it into generated CORE/COMPANION. The generated Project MUST NOT assume an output medium implicitly.
+
 ### 6.1 Intake/Q&A output hygiene (mandatory)
 While in `PB_INTAKE` or `PB_QA`:
 - No draft file generation, no premature analysis.
