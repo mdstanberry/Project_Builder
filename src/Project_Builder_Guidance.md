@@ -77,8 +77,8 @@ If validation fails, the response must be regenerated.
 ## 5. Output Format Selection
 
 Generated projects must:
-- Either include a deterministic intake step for output format selection (numbered list + example), **or**
-- Explicitly define a platform default (e.g., ChatGPT → docx canvas).
+- Include a deterministic intake step (or Q&A-captured default) for output format selection (e.g., Markdown, docx-friendly), with numbered list + example when choices are offered.
+- Use **platform-neutral** defaults (per CORE 6.4D). Any platform-specific behavior (e.g., docx canvas) must be **conditional** on platform capability with a clear fallback to plain Markdown/text; do not embed a platform-specific default as the sole or unconditional default.
 
 Implicit or assumed output format behavior is not allowed.
 
