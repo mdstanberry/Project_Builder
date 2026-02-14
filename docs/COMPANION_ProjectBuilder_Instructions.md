@@ -1,6 +1,6 @@
 # COMPANION — Project Builder (Execution)
 **Operational filename:** `COMPANION_ProjectBuilder_Instructions.md`  
-**Version:** v1.4.0-companion  
+**Version:** v2.0.0-companion  
 **Effective date:** 2026-02-14  
 **Authority:** This document is the sole execution authority for intake sequencing, Q&A flow, file generation, command handling, and regression testing.
 
@@ -75,18 +75,16 @@ state:
   state_machine_design: { modes: [string], transitions: [string] } | null
   command_routing: [{ command: string, behavior: string }] | null
   output_preferences: {
-    output_medium: Markdown | DocxFriendlyMarkdown | BriefingStyle | Other   # output format preference (separate from response length)
+    output_medium: Markdown | DocxFriendlyMarkdown | BriefingStyle | Other   # output format (QA-06A); separate from response length
     output_medium_notes: string | null
-    response_length_preference: Brief | Moderate | Verbose | null
+    response_length_preference: Brief | Moderate | Verbose | null            # (QA-06); single source of truth
     output_focus: AccuracyCompliance | Actionability | ExecutiveReadability | Teaching | null
     heading_strictness: Strict | SemiStrict | Flexible | null
   } | null
-  output_format_preference: Markdown | DocxFriendlyMarkdown | BriefingStyle | Other | null   # captured in QA-06A; must be separate from response_length_preference
   constraints_rules: [string] | null
   knowledge_integration: string | null
   versioning_approach: string | null
   research_needs: Yes | No | null
-  response_length_preference: Brief | Moderate | Verbose | null
   
   # Schema governance (generated Projects) (required)
   response_schema_catalog: [{
@@ -443,7 +441,7 @@ Ask:
 
 For Beginner, add: "If you're not sure, choose Markdown (Option 1)."
 
-System action: Record selection in `output_preferences.output_medium` and `output_format_preference` (and if option 4, `output_preferences.output_medium_notes`). Output format is captured separately from response length (QA-06).
+System action: Record selection in `output_preferences.output_medium` (and if option 4, `output_preferences.output_medium_notes`). Output format is captured separately from response length (QA-06).
 
 Complete if: valid selection (and if option 4, a short description is provided)  
 Advance → QA-06
@@ -464,7 +462,7 @@ Complete if: valid selection
 Advance → QA-06B
 
 System action (mandatory, generation-impacting):
-- Record the selection in `response_length_preference` and `output_preferences.response_length_preference` as the Project’s default response length preference.
+- Record the selection in `output_preferences.response_length_preference` as the Project’s default response length preference.
 - Enforce platform-neutral output in generated instructions:
   - Do not require platform-specific UI features (example: “canvas”) unless the user explicitly requests them.
   - If the user requests a platform-specific feature, implement it as conditional behavior with a plain Markdown/text fallback for platforms without that capability.
@@ -933,10 +931,10 @@ Generated Deployment Instructions must include:
 
 ## Y. Change log (required)
 
-- 2026-02-14 — v1.4.0-companion:
+- 2026-02-14 — v2.0.0-companion (MAJOR: behavior changes to Q&A flow per A.1):
   - Hardened governance: CORE Section 6.0 now mandates generated Projects embed intake state machine, schemas as contracts, schema rules, pre-send validation gate, and separate capture of output format vs response length
   - Enforced QA-03 intake prompt pattern as mandatory: drafts missing why, numbered options (when constrained), or example response must be repaired and re-presented; pointer does not advance until valid and approved
-  - Confirmed QA-06 semantics: output format (QA-06A) captured separately from response length (QA-06); state model adds output_format_preference; schema catalog uses required_headings
+  - Q&A flow behavior changes: QA-06A (output medium), QA-06 (response length), QA-06B (output focus), QA-06C (heading strictness) added/refined; output format captured separately from response length; state model uses output_preferences only (single source of truth)
   - Schema binding + validation gate: generated CORE/COMPANION must include schema catalog, binding rule, and mechanical pre-send validation checklist (N.1 item 12, N.2B); added T-31 regression test
 
 - 2026-02-09 — v1.3.2-companion:

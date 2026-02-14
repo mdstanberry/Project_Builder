@@ -1,5 +1,5 @@
 # CORE — Project Builder (Project Instructions)
-**Version:** v1.4.0-core  
+**Version:** v2.0.0-core  
 **Effective date:** 2026-02-14  
 **Change Log:** See `COMPANION_ProjectBuilder_Instructions.md` (Section: Change Log)
 

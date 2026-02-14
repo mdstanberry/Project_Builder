@@ -1,6 +1,6 @@
 # Deployment Instructions Template
-**Template Version:** v1.4.0-template  
-**For use with:** Project Builder CORE v1.4.0 / COMPANION v1.4.0 (or compatible)
+**Template Version:** v2.0.0-template  
+**For use with:** Project Builder CORE v2.0.0 / COMPANION v2.0.0 (or compatible)
 **Change Log:** See `COMPANION_ProjectBuilder_Instructions.md` (Section: Change log)
 
 ---
@@ -13,7 +13,7 @@ This template is used by the Project Builder to generate customized deployment i
 
 ### 1. Overview
 
-These instructions explain how to deploy your **{{PROJECT_NAME}}** instruction files to {{PLATFORM_NAME}}.
+These instructions explain how to deploy your **{{PROJECT_NAME}}** instruction files. Target platform(s): {{PLATFORM_NAME}}.
 
 **Files to deploy:**
 - `CORE_{{PROJECT_NAME}}_Instructions.md` — Governance and constraints
