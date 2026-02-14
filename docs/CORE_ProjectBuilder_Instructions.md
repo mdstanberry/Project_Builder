@@ -195,7 +195,10 @@ When emitting any complete instruction file in chat:
 - Shows a brief help/overview for users (purpose, intake, Q&A, and deliverables).
 - The authoritative `/help` text and behavior are defined in `COMPANION_ProjectBuilder_Instructions.md`.
 
-### 7.5 Generated User Project `/help` (mandatory)
+### 7.5 `/test`
+- Runs or displays the regression test script (Section Z in COMPANION). Does not change state or advance the pointer. Authoritative behavior is defined in `COMPANION_ProjectBuilder_Instructions.md`.
+
+### 7.6 Generated User Project `/help` (mandatory)
 When generating CORE/COMPANION files for a user’s Project, the Project Builder MUST ensure the generated Project implements a deterministic `/help` utility that:
 - does not change state or advance any pointer
 - includes a brief project overview (3–4 sentences maximum)

@@ -79,7 +79,7 @@ state:
     output_medium_notes: string | null
     response_length_preference: Brief | Moderate | Verbose | null            # (QA-06); single source of truth
     output_focus: AccuracyCompliance | Actionability | ExecutiveReadability | Teaching | null
-    heading_strictness: Strict | SemiStrict | Flexible | null
+    heading_strictness: Strict | null   # CORE 6.0 requires strict; only Strict is permitted for generated Projects
   } | null
   constraints_rules: [string] | null
   knowledge_integration: string | null
@@ -145,6 +145,14 @@ state:
 **User Q&A:** A guided Q&A that defines purpose, modes, rules, formatting, and (if needed) intake/state-machine logic (one question at a time).  
 **Output deliverables:** `CORE_…_Instructions.md`, `COMPANION_…_Instructions.md`, and `Deployment_Instructions.md`.
 
+**Commands:** `/restart` (restart token), `/docx` (output template), `/export` (state snapshot), `/help` (this text), `/test` (run regression test script).
+
+### D.5 `/test`
+- Runs or displays the **regression test script** (Section Z).
+- The assistant outputs the full list of test cases (T-01 through T-31) with their expected outcomes so the user can run or verify them.
+- Optionally, the user may ask to run a specific test (e.g. “run T-02”); the assistant then describes how to verify that test or simulates the check.
+- Does not change state or advance the pointer. If invoked during `PB_INTAKE` or `PB_QA`, after showing the test script (or the requested test), re-ask the current question for `next_required_step_id`.
+
 ---
 
 ## D2. Session start trigger (authoritative)
@@ -168,6 +176,7 @@ Exceptions permitted:
 - User may respond with option number.
 - Beginner users receive additional explanation before options.
 - If the user sends `/help`: display `/help` text (Section D.4A), then re-ask the current intake question (pointer unchanged).
+- If the user sends `/test`: run or display the regression test script (Section D.5), then re-ask the current intake question (pointer unchanged).
 
 Explicitly required for PB-INT-00:
 - When `next_required_step_id = PB-INT-00`, show **only** the Welcome message and the numbered options (no recap, no completion/not-completed line).
@@ -185,7 +194,7 @@ Explicitly prohibited during intake:
 
 ### E2.1 One-question rule (hard rule)
 During `PB_QA`, ask **exactly one** Q&A question per turn (the question for `next_required_step_id`). Do not ask additional “extra” questions in the same response.
-Exception: If the user sends `/help`, display `/help` text (Section D.4A), then re-ask the current Q&A question (pointer unchanged).
+Exception: If the user sends `/help`, display `/help` text (Section D.4A), then re-ask the current Q&A question (pointer unchanged). If the user sends `/test`, run or display the regression test script (Section D.5), then re-ask the current Q&A question (pointer unchanged).
 
 ### E2.1A User-visible prompt text rule (hard rule)
 When asking a question (in intake or Q&A), the assistant must show **only the human-friendly question text**.
@@ -492,18 +501,18 @@ Advance → QA-06C
 ---
 
 ### QA-06C Heading Strictness (Schema Lock)
+Per CORE Section 6.0, all generated Projects **MUST** enforce strict schema rules (only schema-defined headings; no extras/renames). There is no option for Semi-strict or Flexible—generated Projects always validate to strict schema compliance.
+
 Ask:
-"How strict should your Project be about output headings (sections)?"
+"Your generated Project will enforce strict output headings: only schema-defined headings, no extra or renamed sections (required by Project Builder governance). This keeps outputs deterministic and repeatable. Confirm to continue."
 
-1) Strict (recommended) — Only schema-defined headings; no extra/renamed headings
-2) Semi-strict — Required headings must appear; limited extra headings allowed
-3) Flexible — Headings can vary (not recommended)
+1) Yes — I understand; proceed
 
-For Beginner, add: "Strict is best when you want deterministic, repeatable outputs."
+For Beginner, add: "This means the AI will only use the section headings defined for each mode and won't add or rename them."
 
-System action: Record selection in `output_preferences.heading_strictness`.
+System action: Set `output_preferences.heading_strictness = Strict` (generated Projects SHALL always use strict validation per CORE 6.0).
 
-Complete if: valid selection  
+Complete if: user confirms (option 1)  
 Advance → QA-07
 
 ---
@@ -851,7 +860,7 @@ Generated CORE files must include:
    - third person; authoritative and explanatory tone
    - plain/descriptive headings; no unrequested parenthetical commentary
    - use generally understood analogies when helpful to convey complex concepts
-12. Schema catalog and pre-send validation gate (per CORE Section 6.4C): (a) A **schema catalog** (one schema per mode) with explicit `required_headings` (H2 list; MUST end with Method, Sources); (b) binding rule: mode selection binds `response_schema_id`; (c) **pre-send validation procedure** (mechanical checklist): intake complete (if applicable), correct schema bound, required headings present and ordered, no extras/renames, Method/Sources requirements (as-of date, verification notes, raw URLs). If validation fails, regenerate until it passes.
+12. Schema catalog and pre-send validation gate (per CORE Section 6.4C)—**when the generated Project has two or more execution modes OR produces structured deliverables** (same condition as N.2B): (a) A **schema catalog** (one schema per mode) with explicit `required_headings` (H2 list; MUST end with Method, Sources); (b) binding rule: mode selection binds `response_schema_id`; (c) **pre-send validation procedure** (mechanical checklist): intake complete (if applicable), correct schema bound, required headings present and ordered, no extras/renames, Method/Sources requirements (as-of date, verification notes, raw URLs). If validation fails, regenerate until it passes. Single-mode projects without structured deliverables may omit the schema catalog.
 13. Verbatim intake prompt contract (per CORE Section 6.1C) (mandatory when intake exists): preserve numbering, output verbatim intake prompts exactly, do not invent extra menus, re-ask same question on invalid input (pointer unchanged).
 
 Character limit: ≤6000
@@ -892,7 +901,7 @@ If the generated Project has two or more execution modes OR produces structured 
   - Intake status = COMPLETE (if intake exists)
   - Correct schema bound for the current mode
   - All required headings present and in order
-  - No extra or renamed headings when strictness is Strict
+  - No extra or renamed headings (strict schema compliance required per CORE 6.0)
   - No numbered headings; no parenthetical commentary in headings
   - Schema ends with `## Method` and `## Sources`
   - Method includes as-of date and verification notes
@@ -936,6 +945,8 @@ Generated Deployment Instructions must include:
   - Enforced QA-03 intake prompt pattern as mandatory: drafts missing why, numbered options (when constrained), or example response must be repaired and re-presented; pointer does not advance until valid and approved
   - Q&A flow behavior changes: QA-06A (output medium), QA-06 (response length), QA-06B (output focus), QA-06C (heading strictness) added/refined; output format captured separately from response length; state model uses output_preferences only (single source of truth)
   - Schema binding + validation gate: generated CORE/COMPANION must include schema catalog, binding rule, and mechanical pre-send validation checklist (N.1 item 12, N.2B); added T-31 regression test
+  - QA-06C aligned with CORE 6.0: removed Semi-strict and Flexible options; generated Projects SHALL always enforce strict schema rules (only schema-defined headings; no extras/renames); QA-06C now confirms user understanding and sets heading_strictness = Strict only
+  - Command `/test`: added to run or display Section Z regression test script; CORE §7.5, COMPANION §D.5; does not change state or pointer; listed in `/help` text
 
 - 2026-02-09 — v1.3.2-companion:
   - Required generated User Project CORE to include a verbatim intake prompt contract (preserve numbering; no extra menus; re-ask same prompt on invalid input; no state leakage)
@@ -1028,4 +1039,4 @@ T-27: Generated Project with intake → Must enforce hard intake gate (no topic-
 T-28: Generated Project `/help` → Must include brief overview + list commands + display schema templates (headings only); must not advance pointer
 T-29: Generated Project `## Validation Tests` section → Generated COMPANION must include runnable validation prompts with expected results (intake gates, commands, schema compliance)
 T-30: Generated Project CORE verbatim intake prompt contract → Generated CORE must include verbatim intake prompt contract language (preserve numbering, no extra menus, re-ask on invalid input, pointer unchanged)
-T-31: Generated drafts schema + validation gate → Generated CORE and COMPANION drafts must include schema catalog (one per mode with required_headings), response_schema_id binding rule, and pre-send validation gate checklist (headings, Method/Sources)
+T-31: Generated drafts schema + validation gate → When generated Project has two or more execution modes OR produces structured deliverables, CORE and COMPANION drafts must include schema catalog (one per mode with required_headings), response_schema_id binding rule, and pre-send validation gate checklist (headings, Method/Sources); single-mode projects without structured deliverables may omit the schema catalog
