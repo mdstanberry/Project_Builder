@@ -1,0 +1,31 @@
+---
+description: Enforce CORE/COMPANION split and semantic version headers
+globs: docs/**/*_Instructions*.md
+alwaysApply: false
+---
+
+## Instruction build conventions (CORE + COMPANION)
+
+### File split (non-negotiable)
+- CORE file:
+  - Purpose: governance + routing instructions.
+  - Subject to the 8000 character hard limit for ChatGPT Project/Custom GPT, Gemini GEMS, and Copilot Agent.
+- COMPANION file:
+  - Purpose: execution logic + operational detail + regression tests + change log for BOTH CORE and COMPANION.
+  - Not subject to length limits.
+
+### Versioning + header discipline (required)
+- CORE and COMPANION files MUST use strict semantic versioning (`vX.X.x`) and the version MUST be reflected in the file header.
+- Use the following COMPANION header template (fill in the placeholders). CORE uses the same fields but with `CORE` in the title/filename and the `-CORE` suffix in the version.
+
+```
+# COMPANION — <project name>
+**Operational filename:** 'COMPANION_<project name>.md'
+**Version:** <vX.X.x-[CORE | COMPANION]>
+**Effective Date:** YYYY-MM-DD
+**Authority:** This document is the sole execution authority for <authority description>.
+```
+
+### Practical drafting guidance
+- If CORE is getting long, move detail into COMPANION rather than compressing rules into ambiguity.
+- Keep CORE deterministic: short, strict, and unambiguous; COMPANION can be long and procedural.
