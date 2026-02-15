@@ -7,7 +7,7 @@
 ```yaml
 state:
   intake_status: INCOMPLETE | COMPLETE
-  next_required_step_id: INT-01 | INT-02 | INT-03 | INT-04 | INT-05
+  next_required_step_id: INT-01 | INT-02 | INT-03 | INT-04 | INT-05 | null
   response_schema_id: overview_v1 | in_depth_v1 | ecosystem_v1 | null
 
   # Captured intake fields

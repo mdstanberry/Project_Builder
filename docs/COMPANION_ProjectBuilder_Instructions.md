@@ -77,9 +77,10 @@ state:
   output_preferences: {
     output_medium: Markdown | DocxFriendlyMarkdown | BriefingStyle | Other   # output format (QA-06A); separate from response length
     output_medium_notes: string | null
-    response_length_preference: Brief | Moderate | Verbose | null            # (QA-06); single source of truth
-    output_focus: AccuracyCompliance | Actionability | ExecutiveReadability | Teaching | null
-    heading_strictness: Strict | null   # CORE 6.0 requires strict; only Strict is permitted for generated Projects
+    # Set when step completes; do not use for generation until set. No optional/skip path leaves these unset.
+    response_length_preference: Brief | Moderate | Verbose   # set by QA-06 (mandatory)
+    output_focus: AccuracyCompliance | Actionability | ExecutiveReadability | Teaching   # set by QA-06B (mandatory)
+    heading_strictness: Strict   # set by QA-06C when asked, or set to Strict when QA-06C is skipped (mandatory)
   } | null
   constraints_rules: [string] | null
   knowledge_integration: string | null
@@ -450,7 +451,7 @@ Ask:
 
 For Beginner, add: "If you're not sure, choose Markdown (Option 1)."
 
-System action: Record selection in `output_preferences.output_medium` (and if option 4, `output_preferences.output_medium_notes`). Output format is captured separately from response length (QA-06).
+System action: Record selection in `output_preferences.output_medium` (and if option 4, `output_preferences.output_medium_notes`). When creating `output_preferences`, initialize `response_length_preference = Moderate`, `output_focus = AccuracyCompliance`, `heading_strictness = Strict` so the state contract is satisfied; QA-06, QA-06B, and QA-06C overwrite with user selection. Output format is captured separately from response length (QA-06).
 
 Complete if: valid selection (and if option 4, a short description is provided)  
 Advance → QA-06
@@ -500,8 +501,10 @@ Advance → QA-06C
 
 ---
 
-### QA-06C Heading Strictness (Schema Lock)
-Per CORE Section 6.0, all generated Projects **MUST** enforce strict schema rules (only schema-defined headings; no extras/renames). There is no option for Semi-strict or Flexible—generated Projects always validate to strict schema compliance.
+### QA-06C Heading Strictness (Schema Lock) (Conditional)
+**Skip if:** The generated Project has only one execution mode AND does not produce structured deliverables (same condition as N.2B—when schema catalog may be omitted). The assistant infers “produces structured deliverables” from context (e.g. purpose_scope or output_focus implies schema-bound reports); when unclear, do not skip. When skip: set `output_preferences.heading_strictness = Strict`; Advance → QA-07 without asking.
+
+**Ask only when** the generated Project has two or more execution modes OR produces structured deliverables (per N.2B and CORE 6.4C). In that case, the generated Project MUST enforce strict schema rules (only schema-defined headings; no extras/renames). There is no option for Semi-strict or Flexible—generated Projects that include a schema catalog always validate to strict schema compliance.
 
 Ask:
 "Your generated Project will enforce strict output headings: only schema-defined headings, no extra or renamed sections (required by Project Builder governance). This keeps outputs deterministic and repeatable. Confirm to continue."
@@ -510,7 +513,7 @@ Ask:
 
 For Beginner, add: "This means the AI will only use the section headings defined for each mode and won't add or rename them."
 
-System action: Set `output_preferences.heading_strictness = Strict` (generated Projects SHALL always use strict validation per CORE 6.0).
+System action: Set `output_preferences.heading_strictness = Strict` (generated Projects that include a schema catalog SHALL use strict validation per CORE 6.0 and N.2B).
 
 Complete if: user confirms (option 1)  
 Advance → QA-07
