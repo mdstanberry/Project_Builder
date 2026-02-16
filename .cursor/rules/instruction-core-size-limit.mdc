@@ -1,0 +1,25 @@
+---
+description: Enforce CORE system-instruction size limits (target 6000, hard 8000)
+globs: docs/**/CORE_*_Instructions*.md
+alwaysApply: false
+---
+
+## CORE instruction length limits (ChatGPT/Gemini/Copilot)
+
+### Hard rule (absolute)
+- When producing CORE instructions for ChatGPT Project/Custom GPT, Gemini GEMS, or Copilot Agent, the CORE instruction text MUST be <= 8000 characters total.
+- The assistant MUST NOT output a CORE file that exceeds 8000 characters.
+- If a draft would exceed 8000, shorten by moving execution detail into COMPANION and re-check length.
+
+### Target rule (recommended)
+- Target CORE <= 6000 characters.
+- If CORE would exceed 6000 characters, warn the user and ask whether to override the target.
+- If the user approves, CORE may exceed 6000 but must still remain <= 8000.
+
+### Counting guidance (what to count)
+- Count ALL characters in the CORE file content, including header lines, whitespace, and punctuation.
+- Provide a character-count estimate in chat text OUTSIDE the file block (never inside the CORE file content).
+
+### Default strategy to stay under limits
+- CORE contains: governance, prohibitions, routing, schemas/format locks, and intake gating rules.
+- COMPANION contains: execution logic details, step-by-step procedures, long examples, and the change log for CORE and COMPANION.
