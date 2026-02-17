@@ -49,6 +49,7 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+*.zip
 .cache/
 
 # Project Builder generated outputs (keep out of main)
